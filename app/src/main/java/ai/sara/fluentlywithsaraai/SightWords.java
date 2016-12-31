@@ -2,6 +2,8 @@ package ai.sara.fluentlywithsaraai;
 
 import android.content.Context;
 import android.content.res.Resources;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -9,19 +11,17 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by russ.fugal on 12/14/2016.
  */
 
-public class SightWords {
-    private String[] wordList; // = getResources().getStringArray(R.array.frequent_words);
-    private int[] wordWeights; // = new int[wordList.length];
-    private boolean[] wordRAN; // = new boolean[wordList.length];
-    private int[] wordEncounters; // = new int[wordList.length];
+public class SightWords implements Serializable {
+    private String[] wordList;
+    private int[] wordWeights;
+    private boolean[] wordRAN;
+    private int[] wordEncounters;
     private String mUserId;
     private int mScore;
 
     //Constructor
-    public SightWords (String userId, Context context) {
-        Resources res = context.getResources();
-        wordList = res.getStringArray(R.array.frequent_words);
-        int[] initialWeights = res.getIntArray(R.array.initial_weights);
+    public SightWords (String userId, String[] frequentWords, int[] initialWeights) {
+        wordList = frequentWords;
         wordWeights = new int[wordList.length];
         wordRAN = new boolean[wordList.length];
         wordEncounters = new int[wordList.length];
@@ -83,13 +83,16 @@ public class SightWords {
     public String recognizedWord (String word) {
         int index = findWordIndex(word);
         if (index != -1) {
-            wordWeights[index] = wordWeights[index] / 5;
-            if (wordEncounters[index] != -1) wordEncounters[index]++;
-            else wordEncounters[index] = 1;
+            wordWeights[index] = wordWeights[index] / 4;
+            if (wordEncounters[index] > 0) wordEncounters[index]++;
+            else {
+                wordEncounters[index] = 1;
+                wordWeights[index] = wordWeights[index] / 4;
+                wordRAN[index] = true;
+            }
             if (wordRAN[index]) mScore += 4;
-            if (wordRAN[index] && wordEncounters[index] > 4) wordWeights[index] = wordWeights[index] / 2;
+            if (wordRAN[index] && wordEncounters[index] > 4) wordWeights[index] = wordWeights[index] / 4;
             if (wordEncounters[index] > 2) wordRAN[index] = true;
-            else wordRAN[index] = false;
             mScore += 1;
             return getRandWord();
         }
@@ -101,7 +104,7 @@ public class SightWords {
         int index = findWordIndex(word);
         if (index != -1) {
             wordWeights[index] += 125;
-            if (wordEncounters[index] != -1) wordEncounters[index]++;
+            if (wordEncounters[index] > 0) wordEncounters[index]++;
             else wordEncounters[index] = 1;
             if (wordEncounters[index] < 8) wordRAN[index] = false;
             mScore += 1;
@@ -112,7 +115,7 @@ public class SightWords {
     public void encounterWord (String word) {
         int index = findWordIndex(word);
         if (index != -1) {
-            if (wordEncounters[index] != -1) wordEncounters[index]++;
+            if (wordEncounters[index] > 0) wordEncounters[index]++;
             else wordEncounters[index] = 1;
             if (wordEncounters[index] > 12) wordRAN[index] = true;
             else if (!wordRAN[index]) wordWeights[index] += 125;

@@ -13,6 +13,7 @@
     tools:context="ai.sara.fluentlywithsaraai.MainActivity"
     tools:showIn="@layout/activity_main">
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/user_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical" >
@@ -23,19 +24,5 @@
             android:padding="@dimen/activity_list_padding"
             android:text="Zachary"
             android:onClick="userZachary"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="24sp"
-            android:padding="@dimen/activity_list_padding"
-            android:text="Ava"
-            android:onClick="userAva"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="24sp"
-            android:padding="@dimen/activity_list_padding"
-            android:text="Lyla"
-            android:onClick="userLyla"/>
     </LinearLayout>
 </RelativeLayout>

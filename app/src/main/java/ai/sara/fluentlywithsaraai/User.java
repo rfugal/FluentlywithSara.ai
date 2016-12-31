@@ -1,7 +1,10 @@
 package ai.sara.fluentlywithsaraai;
 
 import android.content.Context;
+
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.SortedMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -14,10 +17,18 @@ public class User {
     private boolean hasMetrics;
     private SightWords mWordModel;
 
-    public User (String name, Context context) {
+    public User (String userId, String name) {
+        mUserId = userId;
+        mUserName = name;
+        hasMetrics = true;
+        mWordModel = StoreWordModel.Inflate(mUserId);
+    }
+
+    public User (String name, String[] frequentWords, int[] initialWeights) {
         mUserName = name;
         mUserId = createUserId();
-        mWordModel = new SightWords(mUserId, context);
+        mWordModel = new SightWords(mUserId, frequentWords, initialWeights);
+        StoreWordModel.Flatten(mWordModel);
     }
 
     public int getRANcount() {
@@ -42,17 +53,21 @@ public class User {
     public String getRandWord() {
         return mWordModel.getRandWord();
     }
+
     public String recognizedWord(String word) {
         String newWord = mWordModel.recognizedWord(word);
         hasMetrics = true;
+        StoreWordModel.Flatten(mWordModel);
         return newWord;
     }
     public int taughtWord(String word) {
         mWordModel.taughtWord(word);
+        StoreWordModel.Flatten(mWordModel);
         return getScore();
     }
     public int encounterWord(String word) {
         mWordModel.encounterWord(word);
+        StoreWordModel.Flatten(mWordModel);
         return getScore();
     }
 
