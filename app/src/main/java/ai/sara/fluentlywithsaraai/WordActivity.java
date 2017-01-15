@@ -1,13 +1,11 @@
 package ai.sara.fluentlywithsaraai;
 
-import android.content.Intent;
-import android.content.res.Resources;
-import android.support.annotation.IntegerRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewDebug;
 import android.widget.TextView;
+
+import ai.sara.fluentlywithsaraai.data.User;
 
 public class WordActivity extends AppCompatActivity {
     User zachary;
@@ -15,11 +13,8 @@ public class WordActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        zachary = new User (
-                "Zachary",
-                this.getResources().getStringArray(R.array.frequent_words),
-                this.getResources().getIntArray(R.array.initial_weights));
         super.onCreate(savedInstanceState);
+        zachary = new User (this, "Zachary");
         setContentView(R.layout.activity_word);
         TextView randWord = (TextView) findViewById(R.id.randomWord);
         word = zachary.getRandWord();
