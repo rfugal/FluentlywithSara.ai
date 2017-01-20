@@ -25,6 +25,7 @@ import ai.sara.fluentlywithsaraai.data.UsersDb;
 
 public class MainActivity extends AppCompatActivity {
     private ArrayList<User> Users = new ArrayList<>(0);
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,7 +95,8 @@ public class MainActivity extends AppCompatActivity {
                                 year = 2003;
                             }
                         }
-                        addUser(name, year, gender);
+                        User user = new User(MainActivity.this,name,year,gender);
+                        listUser(user,name);
                     }
                 });
                 addUserAlert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -130,18 +132,24 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void userZachary(View view) {
+    public void openUser(View view, User user) {
         Intent i = new Intent(this, userZachary.class);
+        i.putExtra("USER_ID", user.getId());
+        i.putExtra("USER_NAME", user.getUserName());
         startActivity(i);
     }
-    public void addUser(String name, int year, int gender) {
-        User user = new User(this,name,year,gender);
-        listUser(user,name);
-    }
-    public void listUser(User user, String username){
-        Users.add(0, user);
-        TextView newUser = (TextView) View.inflate(MainActivity.this, R.layout.user_list, null);
+    public void listUser(User user, final String username){
+        int index = Users.size();
+        Users.add(index, user);
+        TextView newUser = (TextView) View.inflate(MainActivity.this, R.layout.user_list,null);
         newUser.setText(username);
+        newUser.setId(index);
+        newUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openUser(view, Users.get(view.getId()));
+            }
+        });
         LinearLayout userList = (LinearLayout) findViewById(R.id.user_list);
         userList.addView(newUser);
     }

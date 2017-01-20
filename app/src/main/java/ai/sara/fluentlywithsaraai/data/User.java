@@ -75,10 +75,9 @@ public class User {
         if (hasMetrics) return mWordModel.getRandWord();
         else return "error";
     }
-    public String recognizedWord(String word) {
+    public String recognizedWord(String word, int rate) {
         if (hasMetrics) {
-            String newWord = mWordModel.recognizedWord(word);
-            hasMetrics = true;
+            String newWord = mWordModel.recognizedWord(word,rate);
             //if (newWord == "error") newWord = mWordModel.getRandWord();
             return newWord;
         } else return "error";
@@ -86,15 +85,13 @@ public class User {
     public String taughtWord(String word) {
         if (hasMetrics) {
             String newWord = mWordModel.taughtWord(word);
-            hasMetrics = true;
             //if (newWord == "error") newWord = mWordModel.getRandWord();
             return newWord;
         } else return "error";
     }
-    public String encounterWord(String word) {
+    public String encounterWord(String word, int rate) {
         if (hasMetrics) {
-            String newWord = mWordModel.encounterWord(word);
-            hasMetrics = true;
+            String newWord = mWordModel.encounterWord(word, rate);
             //if (newWord == "error") newWord = mWordModel.getRandWord();
             return newWord;
         } else return "error";

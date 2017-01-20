@@ -21,6 +21,7 @@ public class SightWords {
     private int readCount;
     private Context context;
     private UsersDb db;
+    private String lastWord;
 
     //Constructor
     public SightWords (Context c, String userId) {
@@ -87,11 +88,11 @@ public class SightWords {
         return mScore;
     }
     public ArrayList<String> getFluentWords() {
-        ArrayList<String> RANwords = new ArrayList<>();
+        ArrayList<String> fluentWords = new ArrayList<>();
         for (int index = 0; index < wordsFluent.length; index++) {
-            if (wordsFluent[index]) RANwords.add(wordList[index]);
+            if (wordsFluent[index]) fluentWords.add(wordList[index]);
         }
-        return RANwords;
+        return fluentWords;
     }
     public String getUserId() {
         return mUserId;
@@ -113,23 +114,32 @@ public class SightWords {
             index++;
             sumWeights = sumWeights + wordWeights[index];
         }
-        return wordList[index];
+        if (lastWord == wordList[index]) {
+            return getRandWord();
+        } else {
+            lastWord = wordList[index];
+            return lastWord;
+        }
     }
 
     //Known Known Encounter
-    public String recognizedWord (String word) {
+    public String recognizedWord (String word, int rate) {
         int index = findWordIndex(word);
         if (index != -1) {
-            wordWeights[index] = wordWeights[index] / 4;
+            wordWeights[index] = wordWeights[index] / 2;
             if (wordEncounters[index] > 0) wordEncounters[index]++;
-            else {
+            else if (rate < 1500){
                 wordEncounters[index] = 1;
-                wordWeights[index] = wordWeights[index] / 4;
+                wordWeights[index] = wordWeights[index] / 16;
                 wordsFluent[index] = true;
+                mScore += 2;
+            } else wordEncounters[index] = 1;
+            if (wordsFluent[index]) mScore += 2;
+            if (wordsFluent[index] && wordEncounters[index] > 2 && rate < 1000) {
+                wordWeights[index] = wordWeights[index] / 4;
+                mScore +=5;
             }
-            if (wordsFluent[index]) mScore += 4;
-            if (wordsFluent[index] && wordEncounters[index] > 4) wordWeights[index] = wordWeights[index] / 4;
-            if (wordEncounters[index] > 2) wordsFluent[index] = true;
+            if (wordEncounters[index] > 2 && rate < 1500) wordsFluent[index] = true;
             mScore += 1;
             dbSave();
             return getRandWord();
@@ -153,12 +163,12 @@ public class SightWords {
     }
 
     //Fuzzy Encounter
-    public String encounterWord (String word) {
+    public String encounterWord (String word, int rate) {
         int index = findWordIndex(word);
         if (index != -1) {
             if (wordEncounters[index] > 0) wordEncounters[index]++;
             else wordEncounters[index] = 1;
-            if (wordEncounters[index] > 12) wordsFluent[index] = true;
+            if (wordEncounters[index] > 3 && rate < 600) wordsFluent[index] = true;
             else if (!wordsFluent[index]) wordWeights[index] += 125;
             mScore += 1;
             dbSave();

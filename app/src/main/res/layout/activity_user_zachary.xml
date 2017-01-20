@@ -18,6 +18,7 @@
             android:layout_height="wrap_content"
             android:textSize="24sp"
             android:padding="@dimen/activity_list_padding"
+            android:id="@+id/learner"
             android:text="Zachary"/>
         <TextView
             android:layout_width="wrap_content"

@@ -14,9 +14,32 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/randomWord"
-        android:onClick="nextWord"/>
+        android:gravity="center"
+        android:textSize="50sp"
+        android:textStyle="bold"
+        android:paddingBottom="16dp"
+        android:paddingTop="16dp"/>
+    <ImageView
+        android:layout_width="108dp"
+        android:layout_height="108dp"
+        android:padding="6dp"
+        android:scaleType="centerInside"
+        android:background="@drawable/letter_key_back"
+        android:id="@+id/flashcard_deconstruction"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/noun_125952_cc"
+        android:layout_marginTop="36dp"
+        android:onClick="deconstructionStart"
+        />
+    <GridLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/deconstruction_buttons"
+        android:layout_gravity="center" />
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="center_horizontal|bottom"
+        android:textSize="27sp"
         android:id="@+id/score" />
 </LinearLayout>
