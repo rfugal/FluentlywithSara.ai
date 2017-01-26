@@ -2,6 +2,8 @@ package ai.sara.fluentlywithsaraai.data;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.util.Log;
+
 import org.json.JSONArray;
 import java.util.ArrayList;
 import java.util.Random;
@@ -102,7 +104,10 @@ public class SightWords {
         int sumWeights = 0;
         Random random = new Random();
         int index = 0;
-        while (index < wordWeights.length && sumWeights < 1000000) {
+        int targetSpace = 8;
+        int fluentCount = getFluentCount();
+        if (fluentCount > 3) targetSpace = fluentCount * 2;
+        while (index < wordWeights.length && index < targetSpace) {
             sumWeights = sumWeights + wordWeights[index];
             index++;
         }
@@ -150,7 +155,8 @@ public class SightWords {
     //Known Unknown Encounter
     public String taughtWord (String word) {
         int index = findWordIndex(word);
-        if (index != -1) {
+        if (index == -1) {
+        } else {
             wordWeights[index] += 125;
             if (wordEncounters[index] > 0) wordEncounters[index]++;
             else wordEncounters[index] = 1;
@@ -177,9 +183,15 @@ public class SightWords {
         return "error";
     }
 
-    private int findWordIndex (String word) {
+    public boolean getWordFluency(String queryWord) {
+        int i = findWordIndex(queryWord);
+        if (i != -1) return wordsFluent[i];
+        else return false;
+    }
+
+    private int findWordIndex(String word) {
         for (int index = 0; index < wordList.length; index++) {
-            if (wordList[index] == word) {
+            if (wordList[index].equals(word)) {
                 return index;
             }
         }
