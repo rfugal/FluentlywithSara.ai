@@ -5,8 +5,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Parcelable;
+
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
 
 /**
  * Created by russ.fugal on 1/12/2017.
@@ -167,18 +172,95 @@ public class UsersDb {
             return fluentCount;
         } else return -1;
     }
+    public ArrayList<String> getAdditionalWords(String userId) {
+        ArrayList<String> wordList = new ArrayList<>();
+        Cursor c = db.rawQuery("SELECT " + UserListContract.UserFluency.COLUMN_ADDITIONAL_WORDS +
+                " FROM " + UserListContract.UserFluency.TABLE_NAME +
+                " WHERE " + UserListContract.UserFluency.COLUMN_USER_ID +
+                " = ?", new String[] {userId});
+        if (c.moveToFirst()) {
+            JSONArray words;
+            try {
+                words = new JSONArray(c.getString(c.getColumnIndex(UserListContract.UserFluency.COLUMN_ADDITIONAL_WORDS)));
+            } catch (JSONException e) {
+                return wordList;
+            }
+            for (int i=0; i < words.length(); i++) {
+                try {
+                    wordList.add(words.getString(i));
+                } catch (JSONException e) {
+                    return wordList;
+                }
+            }
+            c.close();
+        }
+        return wordList;
+    }
+    public ArrayList<Boolean> getAdditionalFluency(String userId) {
+        ArrayList<Boolean> fluencyList = new ArrayList<>();
+        Cursor c = db.rawQuery("SELECT " + UserListContract.UserFluency.COLUMN_ADDITIONAL_FLUENT +
+                " FROM " + UserListContract.UserFluency.TABLE_NAME +
+                " WHERE " + UserListContract.UserFluency.COLUMN_USER_ID +
+                " = ?", new String[] {userId});
+        if (c.moveToFirst()) {
+            JSONArray words;
+            try {
+                words = new JSONArray(c.getString(c.getColumnIndex(UserListContract.UserFluency.COLUMN_ADDITIONAL_FLUENT)));
+            } catch (JSONException e) {
+                return fluencyList;
+            }
+            for (int i=0; i < words.length(); i++) {
+                try {
+                    fluencyList.add(words.getBoolean(i));
+                } catch (JSONException e) {
+                    return fluencyList;
+                }
+            }
+            c.close();
+        }
+        return fluencyList;
+    }
+    public ArrayList<Integer> getAdditionalEncounters(String userId) {
+        ArrayList<Integer> encounterList = new ArrayList<>();
+        Cursor c = db.rawQuery("SELECT " + UserListContract.UserFluency.COLUMN_ADDITIONAL_ENCOUNTER +
+                " FROM " + UserListContract.UserFluency.TABLE_NAME +
+                " WHERE " + UserListContract.UserFluency.COLUMN_USER_ID +
+                " = ?", new String[] {userId});
+        if (c.moveToFirst()) {
+            JSONArray words;
+            try {
+                words = new JSONArray(c.getString(c.getColumnIndex(UserListContract.UserFluency.COLUMN_ADDITIONAL_ENCOUNTER)));
+            } catch (JSONException e) {
+                return encounterList;
+            }
+            for (int i=0; i < words.length(); i++) {
+                try {
+                    encounterList.add(words.getInt(i));
+                } catch (JSONException e) {
+                    return encounterList;
+                }
+            }
+            c.close();
+        }
+        return encounterList;
+    }
     public Cursor rawQuery(String sql, String[] args) {
         Cursor c = db.rawQuery(sql,args);
         return c;
+    }
+    public void deleteUser(String userId) {
+        db.delete(UserListContract.UserList.TABLE_NAME, UserListContract.UserList.COLUMN_USER_ID + " = ?", new String[] {userId});
+        db.delete(UserListContract.UserFluency.TABLE_NAME, UserListContract.UserFluency.COLUMN_USER_ID + " = ?", new String[] {userId});
     }
     private static final String SQL_CREATE_USER_TABLE =
             "CREATE TABLE " + UserListContract.UserList.TABLE_NAME + " (" +
                     UserListContract.UserList.COLUMN_USER_ID + " TEXT PRIMARY KEY NOT NULL," +
                     UserListContract.UserList.COLUMN_USER_NAME + " TEXT NOT NULL," +
-                    UserListContract.UserList.COLUMN_BIRTHDATE + " INT NOT NULL," +
+                    UserListContract.UserList.COLUMN_BIRTHDATE + " TEXT NOT NULL," +
                     UserListContract.UserList.COLUMN_GENDER + " INT DEFAULT " + UserListContract.UserList.GENDER_OTHER + "," +
                     UserListContract.UserList.COLUMN_SYNC + " INT DEFAULT " + UserListContract.UserList.SYNC_FALSE + "," +
-                    UserListContract.UserList.COLUMN_AUTHENTICATION + " INT)";
+                    UserListContract.UserList.COLUMN_AUTHENTICATION + " INT," +
+                    UserListContract.UserList.COLUMN_PREFERENCES + "TEXT)";
 
     private static final String SQL_CREATE_USER_FLUENCY_TABLE =
             "CREATE TABLE " + UserListContract.UserFluency.TABLE_NAME + " (" +
@@ -190,6 +272,9 @@ public class UsersDb {
                     UserListContract.UserFluency.COLUMN_FLUENT_COUNT + " INT DEFAULT 0," +
                     UserListContract.UserFluency.COLUMN_READ_COUNT + " INT DEFAULT 0," +
                     UserListContract.UserFluency.COLUMN_VERSION + " INT DEFAULT 1," +
+                    UserListContract.UserFluency.COLUMN_ADDITIONAL_WORDS + " TEXT, " +
+                    UserListContract.UserFluency.COLUMN_ADDITIONAL_FLUENT + " TEXT, " +
+                    UserListContract.UserFluency.COLUMN_ADDITIONAL_ENCOUNTER + " TEXT, " +
                     "FOREIGN KEY(" + UserListContract.UserFluency.COLUMN_USER_ID + ") REFERENCES " +
                     UserListContract.UserList.TABLE_NAME + "(" + UserListContract.UserList.COLUMN_USER_ID + "))";
 
@@ -199,18 +284,30 @@ public class UsersDb {
                     UserListContract.WordEncounters.COLUMN_TIMESTAMP + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                     UserListContract.WordEncounters.COLUMN_WORD + " TEXT NOT NULL," +
                     UserListContract.WordEncounters.COLUMN_TYPE + " INT NOT NULL," +
+                    UserListContract.WordEncounters.COLUMN_INPUT + " INT," +
                     UserListContract.WordEncounters.COLUMN_USER_SCORE + " INT," +
                     UserListContract.WordEncounters.COLUMN_RATE + " INT," +
                     UserListContract.WordEncounters.COLUMN_CONTEXT + " INT," +
                     "FOREIGN KEY(" + UserListContract.WordEncounters.COLUMN_USER_ID + ") REFERENCES " +
                     UserListContract.UserList.TABLE_NAME + "(" + UserListContract.UserList.COLUMN_USER_ID + "))";
 
+    private static final String SQL_CREATE_LOCAL_READINGS_TABLE =
+            "CREATE TABLE " + UserListContract.LocalReadings.TABLE_NAME + " (" +
+                    UserListContract.LocalReadings.COLUMN_USER_ID + " TEXT NOT NULL, " +
+                    UserListContract.LocalReadings.COLUMN_TEXT + " INT NOT NULL, " +
+                    UserListContract.LocalReadings.COLUMN_SOURCE + " INT NOT NULL, " +
+                    UserListContract.LocalReadings.COLUMN_TITLE + " TEXT, " +
+                    UserListContract.LocalReadings.COLUMN_TEXT_ID + " INT, " +
+                    UserListContract.LocalReadings.COLUMN_TWEET + " INT, " +
+                    UserListContract.LocalReadings.COLUMN_URL + " TEXT, " +
+                    "UNIQUE (" + UserListContract.LocalReadings.COLUMN_USER_ID + "," + UserListContract.LocalReadings.COLUMN_TEXT + "))";
+
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS ";
 
     private class DbHelper extends SQLiteOpenHelper {
         // If you change the database schema, you must increment the database version.
-        public static final int DATABASE_VERSION = 1;
+        public static final int DATABASE_VERSION = 2;
         public static final String DATABASE_NAME = "SaraLocalUsers.db";
 
         public DbHelper(Context context) {
@@ -220,17 +317,45 @@ public class UsersDb {
             db.execSQL(SQL_CREATE_USER_TABLE);
             db.execSQL(SQL_CREATE_USER_FLUENCY_TABLE);
             db.execSQL(SQL_CREATE_WORD_ENCOUNTERS_TABLE);
+            db.execSQL(SQL_CREATE_LOCAL_READINGS_TABLE);
         }
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            // This database is only a cache for online data, so its upgrade policy is
-            // to simply to discard the data and start over
+            if (oldVersion == 1) {
+                try {
+                    Cursor c = db.rawQuery("SELECT ?,? FROM " + UserListContract.UserList.TABLE_NAME,new String[] {UserListContract.UserList.COLUMN_USER_ID, UserListContract.UserList.COLUMN_BIRTHDATE});
+                    while (c.moveToNext()) {
+                        int year = c.getInt(c.getColumnIndex(UserListContract.UserList.COLUMN_BIRTHDATE));
+                        GregorianCalendar birthdate = new GregorianCalendar(year,12,31);
+                        ContentValues values = new ContentValues();
+                        values.put(UserListContract.UserList.COLUMN_BIRTHDATE, birthdate.toString());
+                        String where = UserListContract.UserFluency.COLUMN_USER_ID + " = ? ";
+                        String[] args = {c.getString(c.getColumnIndex(UserListContract.UserList.COLUMN_USER_ID))};
+                        db.update(UserListContract.UserList.TABLE_NAME,values,where,args);
+                    }
+                    c.close();
+                    String alter = "ALTER TABLE ? ADD COLUMN ? TEXT";
+                    db.execSQL(alter,new String[]{UserListContract.UserFluency.TABLE_NAME, UserListContract.UserFluency.COLUMN_ADDITIONAL_FLUENT});
+                    db.execSQL(alter,new String[]{UserListContract.UserFluency.TABLE_NAME, UserListContract.UserFluency.COLUMN_ADDITIONAL_ENCOUNTER});
+                    db.execSQL(alter,new String[]{UserListContract.WordEncounters.TABLE_NAME, UserListContract.WordEncounters.COLUMN_INPUT});
+                    db.execSQL(SQL_CREATE_LOCAL_READINGS_TABLE);
+                } catch (Exception e) {
+                    db.execSQL(SQL_DELETE_ENTRIES + UserListContract.UserList.TABLE_NAME);
+                    db.execSQL(SQL_DELETE_ENTRIES + UserListContract.UserFluency.TABLE_NAME);
+                    db.execSQL(SQL_DELETE_ENTRIES + UserListContract.WordEncounters.TABLE_NAME);
+                    onCreate(db);
+                }
+            } else {
+                db.execSQL(SQL_DELETE_ENTRIES + UserListContract.UserList.TABLE_NAME);
+                db.execSQL(SQL_DELETE_ENTRIES + UserListContract.UserFluency.TABLE_NAME);
+                db.execSQL(SQL_DELETE_ENTRIES + UserListContract.WordEncounters.TABLE_NAME);
+                onCreate(db);
+            }
+        }
+        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             db.execSQL(SQL_DELETE_ENTRIES + UserListContract.UserList.TABLE_NAME);
             db.execSQL(SQL_DELETE_ENTRIES + UserListContract.UserFluency.TABLE_NAME);
             db.execSQL(SQL_DELETE_ENTRIES + UserListContract.WordEncounters.TABLE_NAME);
             onCreate(db);
-        }
-        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            onUpgrade(db, oldVersion, newVersion);
         }
     }
 }

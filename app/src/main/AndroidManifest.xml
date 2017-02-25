@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ai.sara.fluentlywithsaraai">
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-<!--
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <!--
     <uses-permission android:name="android.permission.SEND_SMS"/>
     <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
--->
-
+    -->
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:name="com.orm.SugarApp">
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -30,10 +30,50 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".userZachary" />
-        <activity android:name=".FlipActivity" />
-        <activity android:name=".WordActivity"
+        <activity
+            android:name=".UserHomeActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".WordActivity"
+            android:parentActivityName=".UserHomeActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ai.sara.fluentlywithsaraai.UserHomeActivity" />
+        </activity>
+        <activity
+            android:name=".RandomReadingActivity"
+            android:label="@string/title_activity_random_reading"
+            android:parentActivityName=".UserHomeActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ai.sara.fluentlywithsaraai.UserHomeActivity" />
+        </activity>
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="3b0120cf6780edbdc131bf9b0176bf0c60a6f968" />
+
+        <activity
+            android:name=".WordBuilderActivity"
+            android:label="@string/title_activity_word_builder"
+            android:parentActivityName=".UserHomeActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ai.sara.fluentlywithsaraai.UserHomeActivity" />
+        </activity>
+        <activity android:name=".WriteActivity"
+            android:label="@string/title_activity_write"
+            android:parentActivityName=".UserHomeActivity"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ai.sara.fluentlywithsaraai.UserHomeActivity" />
+        </activity>
     </application>
 
 </manifest>

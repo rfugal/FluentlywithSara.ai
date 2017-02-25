@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_user_zachary"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/activity_vertical_margin"
+    tools:context="ai.sara.fluentlywithsaraai.UserHomeActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:padding="@dimen/activity_list_padding"
+            android:id="@+id/learner" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/letter_key_back"
+            android:textSize="20sp"
+            android:padding="@dimen/activity_list_padding"
+            android:text="@string/open_learner_info"
+            android:onClick="LearnerInfo" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/letter_key_back"
+            android:textSize="20sp"
+            android:padding="@dimen/activity_list_padding"
+            android:text="@string/open_random_passage_activity"
+            android:onClick="RandomReader"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/letter_key_back"
+            android:textSize="20sp"
+            android:padding="@dimen/activity_list_padding"
+            android:text="@string/open_deconstruction_activity"
+            android:onClick="DeconstructionActivity"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/letter_key_back"
+            android:textSize="20sp"
+            android:padding="@dimen/activity_list_padding"
+            android:text="@string/open_word_builder"
+            android:onClick="WordBuilder" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/letter_key_back"
+            android:textSize="20sp"
+            android:padding="@dimen/activity_list_padding"
+            android:text="@string/open_notebook"
+            android:onClick="Write" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/letter_key_back"
+            android:textSize="20sp"
+            android:padding="@dimen/activity_list_padding"
+            android:text="@string/open_sentence_builder"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/letter_key_back"
+            android:textSize="20sp"
+            android:padding="@dimen/activity_list_padding"
+            android:text="@string/open_wikipedia_browser"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/letter_key_back"
+            android:textSize="20sp"
+            android:padding="@dimen/activity_list_padding"
+            android:text="@string/open_book_recommendations"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/letter_key_back"
+            android:textSize="20sp"
+            android:padding="@dimen/activity_list_padding"
+            android:text="@string/open_preferences"/>
+    </LinearLayout>
+    <android.support.design.widget.FloatingActionButton
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/sara_home"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        app:srcCompat="@drawable/ic_20_girl_head" />
+</RelativeLayout>

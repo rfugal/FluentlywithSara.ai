@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/text_margin"
+    android:id="@+id/write_action_dialog" >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:text="editing:  "/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:typeface="monospace"
+            android:id="@+id/write_action_dialog_target"/>
+    </LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/letter_key_red"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:padding="8dp"
+        android:layout_margin="8dp"
+        android:text="DELETE"
+        android:id="@+id/write_action_dialog_delete"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/letter_key_back"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:padding="8dp"
+        android:layout_margin="8dp"
+        android:text="replace"
+        android:id="@+id/write_action_dialog_replace"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/letter_key_back"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:padding="8dp"
+        android:layout_margin="8dp"
+        android:text="insert before"
+        android:id="@+id/write_action_dialog_insert"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/letter_key_red"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:padding="8dp"
+        android:layout_margin="8dp"
+        android:text="CANCEL"
+        android:id="@+id/write_action_dialog_cancel"/>
+</LinearLayout>
