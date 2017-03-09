@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -46,6 +47,9 @@ public class UserHomeActivity extends AppCompatActivity {
         sharedpreferences = getSharedPreferences(USER_SESSION,Context.MODE_PRIVATE);
         username = sharedpreferences.getString(USER_NAME,null);
         userId = sharedpreferences.getString(USER_ID,null);
+        mUser = new User(this,userId);
+        if (!mUser.allowTwitter()) (findViewById(R.id.tweet_access_button)).setVisibility(View.GONE);
+        mUser.close();
         view.setText(username);
         FloatingActionButton sara = (FloatingActionButton) findViewById(R.id.sara_home);
         sara.setOnClickListener(new View.OnClickListener() {
@@ -73,6 +77,22 @@ public class UserHomeActivity extends AppCompatActivity {
     }
     public void Write(View view) {
         Intent i = new Intent(this,WriteActivity.class);
+        startActivity(i);
+    }
+    public void Tweets(View view) {
+        mUser = new User(context,userId);
+        if (mUser.allowTwitter()) {
+            Intent i = new Intent(this,TwitterActivity.class);
+            mUser.close();
+            startActivity(i);
+        } else {
+            Toast notAllowed = Toast.makeText(this, getString(R.string.twitter_not_allowed), Toast.LENGTH_LONG);
+            notAllowed.show();
+            mUser.close();
+        }
+    }
+    public void Spanish(View view) {
+        Intent i = new Intent(this,TranslateActivity.class);
         startActivity(i);
     }
     public void LearnerInfo(View view) {
@@ -113,11 +133,23 @@ public class UserHomeActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        tts.shutdown();
+    }
+
+    @Override
     protected void onResume() {
         sharedpreferences = getSharedPreferences(USER_SESSION, Context.MODE_PRIVATE);
         username = sharedpreferences.getString(USER_NAME,null);
         userId = sharedpreferences.getString(USER_ID,null);
         super.onResume();
+        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+            }
+        });
+
     }
     public void onDestroy() {
         super.onDestroy();

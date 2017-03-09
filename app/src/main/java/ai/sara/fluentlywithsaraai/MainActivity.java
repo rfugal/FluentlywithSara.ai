@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.FloatingActionButton;
@@ -23,6 +24,9 @@ import android.widget.Toast;
 
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterCore;
+import com.twitter.sdk.android.tweetcomposer.TweetComposer;
+
 import io.fabric.sdk.android.Fabric;
 
 import java.text.DateFormat;
@@ -48,12 +52,14 @@ public class MainActivity extends AppCompatActivity {
     private int saraIndex = 0;
     private String[] saraSays;
     private TextToSpeech tts;
+    private UsersDb db;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
-        Fabric.with(this, new Twitter(authConfig));
+        Fabric.with(this, new Twitter(authConfig), new TweetComposer());
+        TwitterCore.getInstance().getSessionManager().clearActiveSession();
         sharedpreferences = getSharedPreferences(USER_SESSION, Context.MODE_PRIVATE);
         setContentView(R.layout.activity_main);
         saraSays = getResources().getStringArray(R.array.sara_main);
@@ -64,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         });
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        UsersDb db = new UsersDb(this);
+        db = new UsersDb(this);
         Cursor c = db.rawQuery("SELECT * FROM " + UserListContract.UserList.TABLE_NAME,
                 new String[] {});
         if (c.getCount() < 1) {
@@ -78,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
             } while (c.moveToNext());
         }
         c.close();
-        db.close();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -240,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
         userList.addView(newUser);
     }
     public void onDestroy() {
+        db.close();
         super.onDestroy();
         tts.shutdown();
     }

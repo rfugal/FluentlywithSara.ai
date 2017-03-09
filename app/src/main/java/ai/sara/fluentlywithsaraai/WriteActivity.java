@@ -10,6 +10,7 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatDialog;
@@ -20,16 +21,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewManager;
 import android.widget.Button;
+import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.apmem.tools.layouts.FlowLayout;
+import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 
+import org.apmem.tools.layouts.FlowLayout;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
 import ai.sara.fluentlywithsaraai.data.User;
 import ai.sara.fluentlywithsaraai.data.UserListContract;
+import ai.sara.fluentlywithsaraai.data.UsersDb;
 
 public class WriteActivity extends AppCompatActivity {
     private SharedPreferences sharedpreferences;
@@ -42,17 +52,23 @@ public class WriteActivity extends AppCompatActivity {
     private String[] saraSays;
     private TextToSpeech tts;
     private User mUser;
-    FlowLayout content;
+    private FlowLayout content;
     private RecognitionListener sara;
     private SpeechRecognizer listen;
     private Context mContext;
     private int insertion_point = -1;
     private boolean reset_listener = false;
+    private int init;
+    private TextView typed_word;
+    private boolean remove_at_insertion;
+    private UsersDb db;
+    private JSONObject TypingHMM;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = this;
+        db = new UsersDb(mContext);
         setContentView(R.layout.activity_write);
         saraSays = getResources().getStringArray(R.array.sara_write);
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
@@ -66,6 +82,7 @@ public class WriteActivity extends AppCompatActivity {
         mUser = new User(this, userId);
         mUser.loadFluencyModel();
         content = (FlowLayout) findViewById(R.id.composition);
+        openSpellerHMM();
         if (SpeechRecognizer.isRecognitionAvailable(this)) {
             listen = SpeechRecognizer.createSpeechRecognizer(this);
             sara = new RecognitionListener() {
@@ -118,7 +135,54 @@ public class WriteActivity extends AppCompatActivity {
         }
         FloatingActionButton sara_icon = (FloatingActionButton) findViewById(R.id.sara_write);
         FloatingActionButton record = (FloatingActionButton) findViewById(R.id.write_record);
-        TextView backspace = (TextView) findViewById(R.id.write_backspace);
+        TextView delete_word = (TextView) findViewById(R.id.write_delete_word);
+        TextView more = (TextView) findViewById(R.id.write_more_letters);
+        TextView back = (TextView) findViewById(R.id.write_restart_letters);
+        TextView backspace = (TextView) findViewById(R.id.write_type_backspace);
+        FloatingActionButton share = (FloatingActionButton) findViewById(R.id.write_share);
+        FloatingActionButton tweet = (FloatingActionButton) findViewById(R.id.write_tweet);
+        typed_word = (TextView) findViewById(R.id.write_typed_word);
+        typed_word.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String word = (String)typed_word.getText();
+                if (word.length()>0) {
+                    addWord(word);
+                    typed_word.setText("");
+                    refreshKeyboard(false);
+                }
+            }
+        });
+        typed_word.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if (!tts.isSpeaking() && typed_word.getText().length()>0) tts.speak((String) typed_word.getText(),TextToSpeech.QUEUE_FLUSH,null);
+                return true;
+            }
+        });
+        more.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                refreshKeyboard(true);
+            }
+        });
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                refreshKeyboard(false);
+            }
+        });
+        backspace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String m = (String) typed_word.getText();
+                if (m.length() > 0) {
+                    m = m.substring(0,m.length()-1);
+                    typed_word.setText(m);
+                    refreshKeyboard(false);
+                }
+            }
+        });
         sara_icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -145,17 +209,41 @@ public class WriteActivity extends AppCompatActivity {
                 }
             }
         });
-        backspace.setOnClickListener(new View.OnClickListener() {
+        delete_word.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (content.getChildCount() > 0) content.removeViewAt(content.getChildCount()-1);
+                if (content.getChildCount() < insertion_point + 1) {
+                    insertion_point = -1;
+                    remove_at_insertion = false;
+                }
             }
         });
-        backspace.setOnLongClickListener(new View.OnLongClickListener() {
+        delete_word.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
                 content.removeAllViews();
+                insertion_point = -1;
+                remove_at_insertion = false;
                 return true;
+            }
+        });
+        share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String composition = getComposition();
+                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                sharingIntent.setType("text/html");
+                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT,composition);
+                startActivity(Intent.createChooser(sharingIntent,"Share using"));
+            }
+        });
+        tweet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String composition = getComposition();
+                TweetComposer.Builder builder = new TweetComposer.Builder(mContext).text(composition + "#learning2read");
+                builder.show();
             }
         });
     }
@@ -169,6 +257,10 @@ public class WriteActivity extends AppCompatActivity {
     }
     private void addWord(String phrase) {
         if (phrase!=null) {
+            if (remove_at_insertion) {
+                content.removeViewAt(insertion_point);
+                remove_at_insertion = false;
+            }
             String[] spans = phrase.split("\\s");
             int iterations = 0;
             for (int i=0; i<spans.length; i++) {
@@ -210,20 +302,22 @@ public class WriteActivity extends AppCompatActivity {
                                 replace.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
-                                        if (!tts.isSpeaking()) {
-                                            content.removeViewAt(location);
-                                            insertion_point = location;
-                                            startSaraListener();
-                                            dismiss();
-                                        }
+                                        (content.getChildAt(location)).setBackground(getDrawable(R.drawable.letter_key_red));
+                                        remove_at_insertion = true;
+                                        insertion_point = location;
+                                        dismiss();
                                     }
                                 });
                                 insert.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
                                         if (!tts.isSpeaking()) {
+                                            TextView textView = (TextView) View.inflate(mContext, R.layout.reader_word_span,null);
+                                            textView.setBackground(getDrawable(R.drawable.letter_key_red));
+                                            textView.setText("insert");
+                                            remove_at_insertion = true;
                                             insertion_point = location;
-                                            startSaraListener();
+                                            content.addView(textView,insertion_point);
                                             dismiss();
                                         }
                                     }
@@ -248,6 +342,13 @@ public class WriteActivity extends AppCompatActivity {
                     iterations += 1;
                     if (iterations == spans.length) insertion_point = -1;
                 }
+                final NestedScrollView scrollview = ((NestedScrollView) findViewById(R.id.write_scroll));
+                scrollview.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        scrollview.fullScroll(NestedScrollView.FOCUS_DOWN);
+                    }
+                },500);
             }
         }
     }
@@ -273,21 +374,78 @@ public class WriteActivity extends AppCompatActivity {
         }, delay);
         return true;
     }
+
+    private void openSpellerHMM() {
+        InputStream is = getResources().openRawResource(R.raw.typing_model);
+        try {
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            String json = new String(buffer, "UTF-8");
+            TypingHMM = new JSONObject(json);
+            is.close();
+            refreshKeyboard(false);
+        } catch (IOException e) {
+        } catch (JSONException e) {
+        }
+    }
+    private void refreshKeyboard(boolean extend) {
+        final TextView built_word = (TextView) findViewById(R.id.write_typed_word);
+        GridLayout word_builder_buttons = (GridLayout) findViewById(R.id.write_type_buttons);
+        word_builder_buttons.setColumnCount(4);
+        String word = (String) built_word.getText();
+        JSONArray children = new JSONArray();
+        try {
+            children = TypingHMM.getJSONArray(word);
+        } catch (JSONException e) {
+        }
+        if (extend) {
+            if (init < children.length() - 4) init += 4;
+            word_builder_buttons.removeAllViews();
+        } else {
+            word_builder_buttons.removeAllViews();
+            init = 0;
+        }
+        int next = Math.min(children.length(), init + 4);
+        for (int i = init; i < next; i++) {
+            TextView letterKey = (TextView) View.inflate(this, R.layout.letter_key, null);
+            try {
+                letterKey.setText(children.getString(i));
+                letterKey.setContentDescription(children.getString(i));
+            } catch (JSONException e) {
+            }
+            letterKey.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String m = (String) built_word.getText();
+                    String n = (String) view.getContentDescription();
+                    m = m + n;
+                    built_word.setText(m);
+                    refreshKeyboard(false);
+                }
+            });
+            word_builder_buttons.addView(letterKey);
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        db.close();
         mUser.close();
         tts.shutdown();
         listen.destroy();
     }
     public void onPause() {
         mUser.close();
+        db.close();
         super.onPause();
     }
     public void onResume() {
         sharedpreferences = getSharedPreferences(USER_SESSION, Context.MODE_PRIVATE);
         username = sharedpreferences.getString(USER_NAME,null);
         userId = sharedpreferences.getString(USER_ID,null);
+        db = new UsersDb(this);
         mUser = new User(this, userId);
         mUser.loadFluencyModel();
         super.onResume();

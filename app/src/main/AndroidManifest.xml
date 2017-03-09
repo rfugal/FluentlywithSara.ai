@@ -66,10 +66,22 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ai.sara.fluentlywithsaraai.UserHomeActivity" />
         </activity>
-        <activity android:name=".WriteActivity"
+        <activity
+            android:name=".WriteActivity"
             android:label="@string/title_activity_write"
             android:parentActivityName=".UserHomeActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ai.sara.fluentlywithsaraai.UserHomeActivity" />
+        </activity>
+        <activity android:name=".TwitterActivity" />
+        <activity
+            android:name=".TranslateActivity"
+            android:label="@string/title_activity_word_builder"
+            android:parentActivityName=".UserHomeActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ai.sara.fluentlywithsaraai.UserHomeActivity" />

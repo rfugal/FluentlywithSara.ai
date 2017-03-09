@@ -2,16 +2,31 @@ package ai.sara.fluentlywithsaraai.data;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Parcelable;
+import android.os.AsyncTask;
+import android.os.Looper;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InterruptedIOException;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.concurrent.RunnableFuture;
+
+import ai.sara.fluentlywithsaraai.MainActivity;
+import ai.sara.fluentlywithsaraai.R;
 
 /**
  * Created by russ.fugal on 1/12/2017.
@@ -21,6 +36,8 @@ public class UsersDb {
     private Context context;
     private DbHelper mDbHelper;
     private SQLiteDatabase db;
+    private boolean hasKeyboard = false;
+    public AlertDialog.Builder waiting;
 
     public UsersDb(Context c) {
         this.context = c.getApplicationContext();
@@ -244,6 +261,71 @@ public class UsersDb {
         }
         return encounterList;
     }
+    public JSONArray getKeys(String string) {
+        JSONArray keys = new JSONArray();
+        String query = "SELECT " +
+                UserListContract.Keyboard.COLUMN_OPTIONS + " FROM " +
+                UserListContract.Keyboard.TABLE_NAME + " WHERE " +
+                UserListContract.Keyboard.COLUMN_STRING + "=?";
+        Cursor c = db.rawQuery(query,new String[]{string});
+        if (c.moveToFirst()) {
+            try {
+                keys = new JSONArray(c.getString(c.getColumnIndex(UserListContract.Keyboard.COLUMN_OPTIONS)));
+            } catch (JSONException e) {
+            }
+        }
+        c.close();
+        return keys;
+    }
+    public void initializeKeyboard() {
+        new openSpellerHMM().execute("");
+    }
+    public class openSpellerHMM extends AsyncTask<String,String,String> {
+        public String doInBackground(String... s) {
+            String TAG = "test";
+            Log.d(TAG, "openSpellerHMM() returned: " + "started");
+            if (DatabaseUtils.queryNumEntries(db, UserListContract.Keyboard.TABLE_NAME)>0) {
+                Log.d(TAG, "openSpellerHMM() returned: " + "keyboard exists");
+            } else {
+                JSONObject TypingHMM = new JSONObject();
+                InputStream is = context.getResources().openRawResource(R.raw.typing_model);
+                String json = "";
+                try {
+                    int size = is.available();
+                    byte[] buffer = new byte[size];
+                    is.read(buffer);
+                    json = new String(buffer, "UTF-8");
+                    is.close();
+                } catch (IOException e) {
+                    return null;
+                }
+                try {
+                    TypingHMM = new JSONObject(json);
+                } catch (JSONException e) {
+                    return null;
+                }
+                Iterator<String> strings = TypingHMM.keys();
+                int index = 0;
+                while (strings.hasNext()) {
+                    String string = strings.next();
+                    index++;
+                    try {
+                        JSONArray options = TypingHMM.getJSONArray(string);
+                        ContentValues values = new ContentValues();
+                        values.put(UserListContract.Keyboard.COLUMN_STRING, string);
+                        values.put(UserListContract.Keyboard.COLUMN_OPTIONS, options.toString());
+                        db.insert(UserListContract.Keyboard.TABLE_NAME, null, values);
+                        if (index % 1000 == 0 || index == TypingHMM.length()) {
+                            Log.d(TAG, "doInBackground() returned: " + Integer.toString(index) + " of " + Integer.toString(TypingHMM.length()));
+                        }
+                    } catch (JSONException e) {
+                    }
+                }
+                Log.d(TAG, "openSpellerHMM() returned: " + "finished");
+            }
+            return null;
+        }
+    }
     public Cursor rawQuery(String sql, String[] args) {
         Cursor c = db.rawQuery(sql,args);
         return c;
@@ -302,6 +384,11 @@ public class UsersDb {
                     UserListContract.LocalReadings.COLUMN_URL + " TEXT, " +
                     "UNIQUE (" + UserListContract.LocalReadings.COLUMN_USER_ID + "," + UserListContract.LocalReadings.COLUMN_TEXT + "))";
 
+    private static final String SQL_CREATE_LOCAL_KEYBOARD_TABLE =
+            "CREATE TABLE " + UserListContract.Keyboard.TABLE_NAME + " (" +
+                    UserListContract.Keyboard.COLUMN_STRING + " TEXT," +
+                    UserListContract.Keyboard.COLUMN_OPTIONS + " TEXT)";
+
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS ";
 
@@ -318,6 +405,7 @@ public class UsersDb {
             db.execSQL(SQL_CREATE_USER_FLUENCY_TABLE);
             db.execSQL(SQL_CREATE_WORD_ENCOUNTERS_TABLE);
             db.execSQL(SQL_CREATE_LOCAL_READINGS_TABLE);
+            db.execSQL(SQL_CREATE_LOCAL_KEYBOARD_TABLE);
         }
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             if (oldVersion == 1) {
@@ -342,12 +430,16 @@ public class UsersDb {
                     db.execSQL(SQL_DELETE_ENTRIES + UserListContract.UserList.TABLE_NAME);
                     db.execSQL(SQL_DELETE_ENTRIES + UserListContract.UserFluency.TABLE_NAME);
                     db.execSQL(SQL_DELETE_ENTRIES + UserListContract.WordEncounters.TABLE_NAME);
+                    db.execSQL(SQL_DELETE_ENTRIES + UserListContract.LocalReadings.TABLE_NAME);
+                    db.execSQL(SQL_DELETE_ENTRIES + UserListContract.Keyboard.TABLE_NAME);
                     onCreate(db);
                 }
             } else {
                 db.execSQL(SQL_DELETE_ENTRIES + UserListContract.UserList.TABLE_NAME);
                 db.execSQL(SQL_DELETE_ENTRIES + UserListContract.UserFluency.TABLE_NAME);
                 db.execSQL(SQL_DELETE_ENTRIES + UserListContract.WordEncounters.TABLE_NAME);
+                db.execSQL(SQL_DELETE_ENTRIES + UserListContract.LocalReadings.TABLE_NAME);
+                db.execSQL(SQL_DELETE_ENTRIES + UserListContract.Keyboard.TABLE_NAME);
                 onCreate(db);
             }
         }
@@ -355,6 +447,8 @@ public class UsersDb {
             db.execSQL(SQL_DELETE_ENTRIES + UserListContract.UserList.TABLE_NAME);
             db.execSQL(SQL_DELETE_ENTRIES + UserListContract.UserFluency.TABLE_NAME);
             db.execSQL(SQL_DELETE_ENTRIES + UserListContract.WordEncounters.TABLE_NAME);
+            db.execSQL(SQL_DELETE_ENTRIES + UserListContract.LocalReadings.TABLE_NAME);
+            db.execSQL(SQL_DELETE_ENTRIES + UserListContract.Keyboard.TABLE_NAME);
             onCreate(db);
         }
     }

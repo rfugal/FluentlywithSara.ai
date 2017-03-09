@@ -17,6 +17,9 @@
     <string name="open_book_recommendations">Recommendations</string>
     <string name="open_notebook">Write</string>
     <string name="open_preferences">Preferences</string>
+    <string name="open_tweets">#learning2read Tweets</string>
+    <string name="open_spanish">Traducir al español</string>
+    <string name="twitter_not_allowed">Access to Twitter is restricted due to age of user</string>
 
     <!-- Actions -->
     <string name="action_settings">"Settings"</string>
@@ -30,7 +33,9 @@
     <string name="sara_home_2">"The second option is labeled Easy Reading. When you touch it, I will show you something that I know you can read."</string>
     <string name="sara_home_3">"The third option is labeled Fluency Activity. Touch it to learn new words."</string>
     <string name="sara_home_4">"The fourth option is labeled Word Builder. Touch it to practice spelling words."</string>
-    <string name="sara_home_5">"The other options are things we can do together later. Touching them doesn't do anything right now."</string>
+    <string name="sara_home_5">"The fifth option is labeled Write. Touch it to write a message or your own story."</string>
+    <string name="sara_home_6">"The sixth option is labeled learning to read tweets. Touch it to read about others learning to read on twitter."</string>
+    <string name="sara_home_7">"The other options are things we can do together later. Touching them doesn't do anything right now."</string>
     <string name="sara_reading_0">"This says, No matched readings. That means that I can't find anything for you at the moment. Try touching the Fluency Activity button to let me know which words you can read, and to learn new words."</string>
     <string name="sara_reading_1">"I know you know some of these words. You might not know some of the words I've highlighted blue."</string>
     <string name="sara_reading_2">"If you know a blue word, touch it to make it green. This is one of the best ways to help me find new content for you to read."</string>
@@ -41,11 +46,24 @@
     <string name="sara_fluency_2">"If you don't know the word, just press the ear to hear the word. Or you can swipe left to skip the word."</string>
     <string name="sara_fluency_3">"After pressing the ear, press the letters on the keypad that are in the word. The correct letters will turn green when pressed."</string>
     <string name="sara_fluency_4">"If you are online, you can hold your finger on my icon to hear a definition of the word."</string>
-    <string name="sara_write_1">"Touch the microphone in the bottom left corner and say what you want written."</string>
-    <string name="sara_write_2">"Hold your finger on the word to delete it. Touch a word to hear it said."</string>
-    <string name="sara_write_3">"Hold your finger on the red backspace button in the top right corner to erase everything."</string>
-    <string name="sara_write_4">"Touch the red backspace button in the top right corner to erase the last word."</string>
-    <string name="sara_write_5">"Hold your finger on my icon to hear everything read back to you."</string>
+    <string name="sara_write_1">"Touch the microphone, in the bottom left corner, and say what you want written."</string>
+    <string name="sara_write_2">"Touch a word to hear it said. If it's the wrong word, hold your finger on the word to edit it"</string>
+    <string name="sara_write_3">"If you don't want to use the microphone, or if I'm just not understanding what you say, you can type it with the word builder."</string>
+    <string name="sara_write_4">"When you're done typing a word, touch it, to move it up into the message body."</string>
+    <string name="sara_write_5">"Hold your finger on the red delete button in the top right corner to erase everything."</string>
+    <string name="sara_write_6">"Touch the red delete button to erase the last word."</string>
+    <string name="sara_write_7">"Hold your finger on my icon to hear everything red back to you."</string>
+    <string name="sara_write_8">"Share what you've written on twitter, with the learning to read hashtag, by touching the bird icon. Or share this as a message in another app with the grey share icon"</string>
+    <string name="sara_word_1">"Touch a letter to begin typing a word. The letters will change as you type"</string>
+    <string name="sara_word_2">"Use the red backspace to erase a letter"</string>
+    <string name="sara_word_3">"If the letter you're looking for is not on the keyboard, press more to the right of the backspace, and to go back press back to the left"</string>
+    <string name="sara_word_4">"Touch the word to hear it said. If you are online, you can hold your finger on the word to hear a definition."</string>
+    <string name="sara_translate_1">"Toque una letra para comenzar a escribir una palabra. Las letras cambiarán a medida que escribe"</string>
+    <string name="sara_translate_2">"Utilice el BACKSPACE rojo para borrar una letra"</string>
+    <string name="sara_translate_3">"Si la letra que busca no está en el teclado, presione MORE a la derecha del BACKSPACE, y para volver presione BACK a la izquierda"</string>
+    <string name="sara_translate_4">"Toque la palabra para escucharlo. Si está en línea, puede mantener su dedo en la palabra para escuchar una definición."</string>
+
+    <string name="twitter_login">"Login to view the latest tweets by Sara.AI and others on learning to read."</string>
 
     <!-- example -->
     <string name="example_user_name">"Johnny X. Ample"</string>
@@ -6555,5 +6573,7 @@
     <string name="frequent_index_4543">verb</string>
     <string name="frequent_index_4544">vowel</string>
     <string name="frequent_index_4545">Washington</string>
+    <string name="title_activity_tweets">Tweets</string>
+    <string name="section_format">Hello World from section: %1$d</string>
 
 </resources>

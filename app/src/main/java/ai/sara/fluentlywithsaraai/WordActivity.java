@@ -247,7 +247,13 @@ public class WordActivity extends AppCompatActivity {
         randWord.setVisibility(View.VISIBLE);
         abc.setVisibility(View.VISIBLE);
         if (type == RECOGNIZED) word = mUser.recognizedWord(word, rate, input);
-        else if (type == TAUGHT) word = mUser.taughtWord(word);
+        else if (type == TAUGHT) {
+            word = mUser.taughtWord(word);
+            if (getIntent().getStringExtra("WORD") != null) {
+                finish();
+                return;
+            }
+        }
         else if (type == SPECIFIC);
         else word = mUser.getRandWord();
         int newscore = mUser.getScore();

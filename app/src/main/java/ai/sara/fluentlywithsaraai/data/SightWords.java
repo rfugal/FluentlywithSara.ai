@@ -181,12 +181,12 @@ public class SightWords {
         if (sumWeights == 0) return "";
         int target = random.nextInt(sumWeights);
         sumWeights = 0;
-        index = -1;
+        index = 0;
         if (target >= additionlist) {
             sumWeights = additionlist;
-            while (sumWeights < target && index < wordList.length - 1) {
-                index++;
+            while (sumWeights < target && index < wordList.length) {
                 sumWeights = sumWeights + wordWeights[index];
+                if (sumWeights < target && index < wordList.length - 1) index++;
             }
             if (lastWord.equals(wordList[index])) {
                 return getRandWord();

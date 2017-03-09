@@ -118,6 +118,9 @@ public class User {
     public String getId() {
         return mUserId;
     }
+    public boolean allowTwitter() {
+        return true;
+    }
     public String getRandWord() {
         if (hasMetrics) return mWordModel.getRandWord();
         else return "error";

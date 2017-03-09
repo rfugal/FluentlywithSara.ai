@@ -2,7 +2,6 @@ package ai.sara.fluentlywithsaraai;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -24,14 +23,16 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Locale;
 
-public class WordBuilderActivity extends AppCompatActivity {
+public class TranslateActivity extends AppCompatActivity {
     JSONObject TypingHMM;
     int init;
     private TextToSpeech tts;
     private int saraIndex = 0;
     private String[] saraSays;
     private TextView typed_word;
+    private Locale spanish = new Locale("es", "ES");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +41,7 @@ public class WordBuilderActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         openSpellerHMM();
-        saraSays = getResources().getStringArray(R.array.sara_word_builder);
+        saraSays = getResources().getStringArray(R.array.sara_translate);
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -54,16 +55,18 @@ public class WordBuilderActivity extends AppCompatActivity {
         typed_word.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                tts.setLanguage(spanish);
                 if (!tts.isSpeaking() && typed_word.getText().length()>0) tts.speak((String) typed_word.getText(),TextToSpeech.QUEUE_FLUSH,null);
             }
         });
         typed_word.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
+                tts.setLanguage(spanish);
                 if (tts.isSpeaking()) return false;
                 String word = (String) typed_word.getText();
                 if (word != null && !word.equals("")) {
-                    new AsyncJsonCall().execute("https://api.pearson.com/v2/dictionaries/ldoce5/entries?headword=" + word.replace(" ","+") + "&limit=25");
+                    new AsyncJsonCall().execute("https://api.pearson.com/v2/dictionaries/laes/entries?headword=" + word.replace(" ","+") + "&limit=25");
                 }
                 return true;
             }
@@ -230,6 +233,7 @@ public class WordBuilderActivity extends AppCompatActivity {
     private void iterateDefinitions(String result) {
         if (result == null) return;
         String word = (String)typed_word.getText();
+        tts.setLanguage(Locale.ENGLISH);
         tts.speak(word,TextToSpeech.QUEUE_FLUSH,null);
         try {
             JSONObject dict_entry = new JSONObject(result);
@@ -240,23 +244,47 @@ public class WordBuilderActivity extends AppCompatActivity {
                 JSONObject entry = entries.getJSONObject(i);
                 if (word.equals(entry.getString("headword"))) {
                     tts.playSilence(750,TextToSpeech.QUEUE_ADD,null);
-                    speakDefinition(entry);
+                    getTranslation(entry);
                 }
             }
         } catch (JSONException e) {
         }
     }
-    private void speakDefinition(JSONObject entry) {
+    private void getTranslation(JSONObject entry) {
         try {
             JSONArray senses = entry.getJSONArray("senses");
             for (int i = 0; i < senses.length(); i++) {
-                tts.speak(senses.getJSONObject(i).getJSONArray("definition").getString(0),TextToSpeech.QUEUE_ADD,null);
-                tts.playSilence(750,TextToSpeech.QUEUE_ADD,null);
-                try {
-                    tts.speak(senses.getJSONObject(i).getJSONArray("examples").getJSONObject(0).getString("text"),TextToSpeech.QUEUE_ADD,null);
-                    tts.playSilence(750,TextToSpeech.QUEUE_ADD,null);
-                } catch (JSONException e) {}
+                speakTranslation(senses.getJSONObject(i).getJSONArray("translations"));
             }
         } catch (JSONException e) {}
+    }
+    private void speakTranslation(JSONArray translations) {
+        for (int i = 0; i < translations.length(); i++) {
+            try {
+                JSONObject translation = translations.getJSONObject(i);
+                tts.setLanguage(spanish);
+                tts.speak(translation.getString("text"),TextToSpeech.QUEUE_ADD,null);
+                tts.playSilence(750,TextToSpeech.QUEUE_ADD,null);
+                speakExamples(translation.getJSONArray("example"));
+            } catch (JSONException e) {}
+        }
+    }
+    private void speakExamples(JSONArray examples) {
+        for (int i=0;i<examples.length(); i++) {
+            try {
+                tts.setLanguage(spanish);
+                tts.speak(examples.getJSONObject(i).getJSONObject("translation").getString("text"),TextToSpeech.QUEUE_ADD,null);
+                tts.playSilence(750,TextToSpeech.QUEUE_ADD,null);
+                tts.setLanguage(Locale.ENGLISH);
+                tts.speak(examples.getJSONObject(i).getString("text"),TextToSpeech.QUEUE_ADD,null);
+                tts.playSilence(750,TextToSpeech.QUEUE_ADD,null);
+            } catch (JSONException e) {}
+        }
+
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        tts.stop();
     }
 }

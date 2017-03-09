@@ -83,6 +83,8 @@
         <item>@string/sara_home_3</item>
         <item>@string/sara_home_4</item>
         <item>@string/sara_home_5</item>
+        <item>@string/sara_home_6</item>
+        <item>@string/sara_home_7</item>
     </string-array>
     <string-array name="sara_write">
         <item>@string/sara_write_1</item>
@@ -90,6 +92,9 @@
         <item>@string/sara_write_3</item>
         <item>@string/sara_write_4</item>
         <item>@string/sara_write_5</item>
+        <item>@string/sara_write_6</item>
+        <item>@string/sara_write_7</item>
+        <item>@string/sara_write_8</item>
     </string-array>
     <string-array name="sara_reader">
         <item>@string/sara_reading_1</item>
@@ -102,6 +107,18 @@
         <item>@string/sara_fluency_2</item>
         <item>@string/sara_fluency_3</item>
         <item>@string/sara_fluency_4</item>
+    </string-array>
+    <string-array name="sara_word_builder">
+        <item>@string/sara_word_1</item>
+        <item>@string/sara_word_2</item>
+        <item>@string/sara_word_3</item>
+        <item>@string/sara_word_4</item>
+    </string-array>
+    <string-array name="sara_translate">
+        <item>@string/sara_translate_1</item>
+        <item>@string/sara_translate_2</item>
+        <item>@string/sara_translate_3</item>
+        <item>@string/sara_translate_4</item>
     </string-array>
     <string-array name="readings">
         <item>@string/primer_1</item>

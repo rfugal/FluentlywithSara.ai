@@ -90,4 +90,9 @@ public final class UserListContract {
         public static final int SOURCE_TWITTER = 1;
         public static final int SOURCE_USER_ADDED = 2;
     }
+    public static class Keyboard implements BaseColumns {
+        public static final String TABLE_NAME = "keyboard";
+        public static final String COLUMN_STRING = "string";
+        public static final String COLUMN_OPTIONS = "options";
+    }
 }
