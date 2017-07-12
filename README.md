@@ -2,6 +2,8 @@
 
 Sara.ai’s primary objective is to make reading and writing easy for the emergent reader. Some of the tools I implement may seem inefficient to a literate user, like the Dynamic Keyboard. However, my goal isn’t to make the best tools for lifelong use. Just as I don’t expect every reader to forever rely on the scaffold of Enhanced Choral Reading as their sole scaffold for word recognition, I expect users to move on to better tools as they progress in fluency. These tools I build are important because, for emergent readers, they are easier use than the best tools are.
 
+This app is available for free on the Google Play store at https://play.google.com/store/apps/details?id=ai.sara.fluentlywithsaraai
+
 ## Word Deconstruction
 
 If I ask someone who doesn’t speak Korean to sound out 태권도 they will have a difficult time. If I ask to simply identify the ‘letters’ it would probably still be rather difficult. Once I point them out, it perhaps gets a little easier:
